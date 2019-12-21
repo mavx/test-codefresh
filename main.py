@@ -6,5 +6,9 @@ app = Flask(__name__)
 def hello():
     return jsonify("Hello world!")
 
+@app.route('/test')
+def test():
+    return jsonify("Test success!")
+
 if __name__ == '__main__':
     app.run()
