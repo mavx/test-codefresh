@@ -1,0 +1,69 @@
+version: "1.0"
+stages:
+  - "clone"
+  - "build"
+  - "integration"
+  - "push"
+steps:
+  main_clone:
+    type: "git-clone"
+    description: "Cloning main repository..."
+    repo: "mavx/test-codefresh"
+    revision: "${{CF_BRANCH}}"
+    stage: "clone"
+  build:
+    title: "Building Docker Image"
+    type: "build"
+    image_name: "mavx/test-codefresh"
+    tag: "${{CF_BRANCH_TAG_NORMALIZED}}"
+    dockerfile: "Dockerfile"
+    stage: "build"
+  run_smoke_test:
+    stage: "integration"
+    title: "Smoke Test"
+    image: "curlimages/curl"
+    commands:
+      - "curl flask_app:5000"
+      - "curl flask_app:5000/test"
+    services:
+      composition:
+        flask_app:
+          image: '${{build}}'
+          ports:
+            - 5000
+      readiness:
+        image: 'byrnedo/alpine-curl'
+        timeoutSeconds: 5
+        commands:
+          - "curl flask_app:5000"
+    
+    
+  parallel_push:
+    type: "parallel"
+    steps:
+      annotate_build:
+        title: "Annotating Build"
+        image: "${{build}}"
+        working_directory: "IMAGE_WORK_DIR"
+        commands:
+          - "echo Annotating Build..."
+        on_success:
+          metadata:
+            set:
+              - ${{build.imageId}}:
+                  - CF_QUALITY: true
+        on_error:
+          metadata:
+            set:
+              - ${{build.imageId}}:
+                  - CF_QUALITY: false
+      push:
+        title: "Pushing image to cfcr"
+        type: "push"
+        image_name: "mavx/test-codefresh"
+        registry: "cfcr"
+        candidate: "${{build}}"
+        tags:
+          - "${{CF_BRANCH_TAG_NORMALIZED}}"
+          - "${{CF_REVISION}}"
+    stage: "push"
