@@ -21,7 +21,7 @@ steps:
   unit_test:
     title: "Unit Test Docker Image"
     stage: "build"
-    image_name: "${{build}}"
+    image: "${{build}}"
     commands:
       - pip install pytest
       - python -m pytest .
