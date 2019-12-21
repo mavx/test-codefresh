@@ -1,0 +1,11 @@
+version: '3'
+services:
+  flask:
+    build: .
+    ports:
+      - "5000:5000"
+  test:
+    image: curlimages/curl
+    command: ["curl", "flask:5000"]
+    depends_on:
+      - "flask"
