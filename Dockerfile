@@ -9,7 +9,7 @@ COPY requirements.txt ./
 
 RUN pip install -r requirements.txt
 
-COPY src ./
+COPY . ./
 
 ENV PYTHONPATH $APP_HOME
 ENV GUNICORN_CMD_ARGS "-b :5000"
