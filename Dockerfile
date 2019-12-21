@@ -7,12 +7,13 @@ WORKDIR $APP_HOME
 # do not change as frequently as the source code
 COPY requirements.txt ./
 
-pip install -r requirements.txt
+RUN pip install -r requirements.txt
 
 COPY src ./
 
 ENV PYTHONPATH $APP_HOME
+ENV GUNICORN_CMD_ARGS "-b :5000"
 
 EXPOSE 5000
 
-ENTRYPOINT ["python", "main.py"]
+ENTRYPOINT ["gunicorn",  "main:app"]
