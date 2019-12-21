@@ -18,6 +18,13 @@ steps:
     tag: "${{CF_BRANCH_TAG_NORMALIZED}}"
     dockerfile: "Dockerfile"
     stage: "build"
+  unit_test:
+    title: "Unit Test Docker Image"
+    stage: "build"
+    image_name: "${{build}}"
+    commands:
+      - pip install pytest
+      - python -m pytest .
   run_smoke_test:
     stage: "integration"
     title: "Smoke Test"
